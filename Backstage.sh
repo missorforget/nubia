@@ -12,6 +12,21 @@ colorEcho(){
     echo
 }
 
+cmd_need(){
+    colorEcho $BLUE "正在安装 $1 ..."
+    [ -z "$(command -v yum)" ] && CHECK="dpkg -l" || CHECK="rpm -qa"
+    [ -z "$(command -v yum)" ] && Installer="apt-get" || Installer="yum"
+    var="0"
+    for command in $1;do
+        $CHECK | grep "$command"
+        if [ "$?" != "0" ];then
+            [ "$var" = "0" ] && apt-get update && var="1"
+            $Installer install $command -y
+        fi
+    done > /dev/null 2>&1
+    [ "$?" != "0" ] && colorEcho $RED "相关命令安装失败！" && exit 1
+}
+
 systemd_init() {
     echo -e '#!/bin/bash\nexport PATH="/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin"' > /bin/systemd_init
     echo -e "$1" >> /bin/systemd_init
@@ -83,6 +98,7 @@ install_ariang() {
 }
 
 check_system() {
+    clear
     if [ -z "$(command -v yum)" ] && [ -z "$(command -v apt-get)" ];then
         colorEcho $RED "缺少apt-get或者yum！"
         exit 1
@@ -92,24 +108,15 @@ check_system() {
         exit 1
     fi
     if [ -z "$(uname -m | grep 'x86_64')" ];then
-        colorEcho $RED "不支持的CPU架构！"
+        colorEcho $RED "不支持的系统架构！"
         exit 1
     fi
 }
 
-necessary_binary() {
-    clear && colorEcho $BLUE "正在安装必要组件,请耐心等待"
-    if [ -z "$(command -v yum)" ];then
-        apt-get update
-        apt-get install unzip wget net-tools curl -y
-    else
-        yum install unzip wget net-tools curl -y
-    fi > /dev/null 2>&1
-}
 
 pannel() {
     check_system
-    necessary_binary
+    cmd_need 'unzip wget net-tools curl'
 
     [ -d "/usr/local/SSR-Bash-Python" ] && ssr_status="$GREEN" || ssr_status=""
     [ -d "/usr/local/v2ray" ] && v2ray_status="$GREEN" || v2ray_status=""
