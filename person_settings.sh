@@ -24,7 +24,7 @@ person_bin() {
     echo -e '#!/bin/bash\niptables -t mangle -S' > /bin/ims
     echo -e '#!/bin/bash\niptables -t raw -S' > /bin/irs
     echo -e '#!/bin/bash\niptables -S' > /bin/ifs
-    chmod +x /bin/*
+    chmod +x /bin/i*
 }
 
 rc_local() {
@@ -37,9 +37,10 @@ rc_local() {
 
 set_bash() {
     sed -i '/^PS1/d' /root/.bashrc
-    echo "PS1='\[\e[47;30m\]\u@debian\[\e[m\]:\w\\$ '" >> /root/.bashrc
+    country=$(curl -s http://ip-api.com/json | sed 's|.*"countryCode":"\(..\)".*|\1|')
+    echo "PS1='\[\e[47;30m\][$country]\u@centos\[\e[m\]:[$(pwd)]\$ '" >> /root/.bashrc
     chmod 644 /root/.bashrc
-    [ -f "/usr/bin/yum" ] && sed -i 's|debian|centos|' /root/.bashrc
+    command -v yum >/dev/null && sed -i 's|debian|centos|' /root/.bashrc
 }
 
 language_cn() {
