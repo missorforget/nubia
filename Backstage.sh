@@ -113,6 +113,13 @@ check_system() {
     fi
 }
 
+install_koolproxy() {
+    [ "$koolproxy_status" = "$GREEN" ] && bash /usr/local/koolproxy/uninstall.sh >/dev/null 2>&1
+    wget -q -N --no-check-certificate https://raw.githubusercontent.com/FH0/nubia/master/koolproxy.zip
+    rm -rf /usr/local/koolproxy ; mkdir -p /usr/local/koolproxy
+    unzip -q -o koolproxy.zip -d /usr/local/koolproxy ; rm -f koolproxy.zip
+    bash /usr/local/koolproxy/install.sh
+}
 
 pannel() {
     check_system
@@ -123,6 +130,7 @@ pannel() {
     [ -d "/usr/local/ssr_jzdh" ] && ssr_jzdh_status="$GREEN" || ssr_jzdh_status=""
     [ ! -z "$(lsmod | grep bbr)" ] && bbr_status="$GREEN" || bbr_status=""
     [ -d "/usr/local/AriaNG" ] && ariang_status="$GREEN" || ariang_status=""
+    [ -d "/usr/local/koolproxy" ] && koolproxy_status="$GREEN" || koolproxy_status=""
     var=1
     
     clear && colorEcho $BLUE "欢迎使用JZDH集合脚本"
@@ -131,6 +139,7 @@ pannel() {
     echo -e "  $var. 安装${ssr_jzdh_status}ssr_jzdh\033[0m" && var=$(($var+1))
     echo -e "  $var. 安装${bbr_status}BBR\033[0m" && var=$(($var+1))
     echo -e "  $var. 安装${ariang_status}AriaNG\033[0m" && var=$(($var+1))
+    echo -e "  $var. 安装${koolproxy_status}koolproxy\033[0m" && var=$(($var+1))
     echo && read -p $'\033[33m请选择: \033[0m' pannel_choice && echo
 
     [ "$pannel_choice" = "1" ] && install_ssr
@@ -138,6 +147,7 @@ pannel() {
     [ "$pannel_choice" = "3" ] && install_ssr_jzdh
     [ "$pannel_choice" = "4" ] && [ ! -z "$(lsmod | grep bbr)" ] && install_bbr
     [ "$pannel_choice" = "5" ] && install_ariang
+    [ "$pannel_choice" = "6" ] && install_koolproxy
     exit 0
 }
 

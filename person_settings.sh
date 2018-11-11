@@ -38,13 +38,16 @@ rc_local() {
 set_bash() {
     sed -i '/^PS1/d' /root/.bashrc
     country=$(curl -s http://ip-api.com/json | sed 's|.*"countryCode":"\(..\)".*|\1|')
-    echo "PS1='\[\e[47;30m\][$country]\u@centos\[\e[m\]:[$(pwd)]\$ '" >> /root/.bashrc
+    system="debian" && command -v yum >/dev/null && system="centos"
+    echo -e "PS1='\\\n\\\[\\\e[47;30m\\\][JP]\\\u@$system\\\[\\\e[m\\\]:[\$(pwd)]\\\n\\\\$ '" >> /root/.bashrc
     chmod 644 /root/.bashrc
-    command -v yum >/dev/null && sed -i 's|debian|centos|' /root/.bashrc
 }
 
 language_cn() {
-    sed -i 's/.*zh_CN.UTF-8/zh_CN.UTF-8/g' /etc/locale.gen
+    sed -i 's|#||g' /etc/locale.gen
+    sed -i 's|^|#|g' /etc/locale.gen
+    sed -i 's|.*en_US.UTF|en_US.UTF|' /etc/locale.gen
+    sed -i 's|.*zh_CN.UTF|zh_CN.UTF|' /etc/locale.gen
     locale-gen
     export LANG=zh_CN.UTF-8
     sed -i '/^LANG/d' /root/.bashrc
